@@ -3,29 +3,51 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package ui;
 
-/**
- *
- * @author lalo
- */
-public class Calendar extends javax.swing.JFrame {
+import datechooser.events.SelectionChangedEvent;
+import datechooser.events.SelectionChangedListener;
+import datechooser.model.multiple.Period;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 
-    /**
-     * Creates new form Calendar
-     */
-    public Calendar() {
+public class CalendarUI extends javax.swing.JFrame {
+
+    public interface DateSelectionListener {
+
+        void selectedDatesEvent(List<Date> dates);
+    }
+
+    public CalendarUI() {
         initComponents();
     }
-    
-    public void setCompanies(Company[] companies){
-        Company.setModel(new javax.swing.DefaultComboBoxModel(companies));
-    }                 
-    public void setPatients(Patient[] patients){
-        Patient.setModel(new javax.swing.DefaultComboBoxModel(patients));
-    } 
-    
+
+    public Company getSelectedCompany() {
+        return (Company) Company.getSelectedItem();
+    }
+
+    public void setCompanies(Company[] companies) {
+        Company.setModel(new DefaultComboBoxModel(companies));
+    }
+
+    public Patient getSelectedPatient() {
+        return (Patient) Patient.getSelectedItem();
+    }
+
+    public void setPatients(Patient[] patients) {
+        Patient.setModel(new DefaultComboBoxModel(patients));
+    }
+    /**
+     * When a change in the selection of the dates occurs, a method selectedDatesEvent() of pse will be wcalled.
+     * @param pse 
+     */
+    public void addDateSelectionListener(DateSelectionListener pse) {
+        this.DateChooser.addSelectionChangedListener((sce) -> pse.selectedDatesEvent(getDates()));
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -40,7 +62,7 @@ public class Calendar extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         Patient = new javax.swing.JComboBox();
-        dateChooserPanel1 = new datechooser.beans.DateChooserPanel();
+        DateChooser = new datechooser.beans.DateChooserPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
         jButton1 = new javax.swing.JButton();
@@ -56,8 +78,8 @@ public class Calendar extends javax.swing.JFrame {
 
         Patient.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        dateChooserPanel1.setNavigateFont(new java.awt.Font("Serif", java.awt.Font.PLAIN, 11));
-        dateChooserPanel1.setShowOneMonth(true);
+        DateChooser.setNavigateFont(new java.awt.Font("Serif", java.awt.Font.PLAIN, 11));
+        DateChooser.setShowOneMonth(true);
 
         jList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
@@ -67,6 +89,11 @@ public class Calendar extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jList1);
 
         jButton1.setText("Add");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -76,7 +103,7 @@ public class Calendar extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(dateChooserPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(DateChooser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel1)
@@ -105,7 +132,7 @@ public class Calendar extends javax.swing.JFrame {
                             .addComponent(Patient, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dateChooserPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE))
+                        .addComponent(DateChooser, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE))
                     .addComponent(jScrollPane1))
                 .addContainerGap())
         );
@@ -124,6 +151,26 @@ public class Calendar extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    public List<Date> getDates() {
+        List<Date> result = new ArrayList();
+        for (Period p : DateChooser.getSelection()) {
+            Calendar start = Calendar.getInstance();
+            start.setTime(p.getStartDate().getTime());
+            Calendar end = Calendar.getInstance();
+            end.setTime(p.getEndDate().getTime());
+            end.add(Calendar.DAY_OF_YEAR, 1);
+            while (start.before(end)) {
+                result.add(start.getTime());
+                start.add(Calendar.DAY_OF_YEAR, 1);
+            }
+        }
+        return result;
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -141,28 +188,28 @@ public class Calendar extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Calendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CalendarUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Calendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CalendarUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Calendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CalendarUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Calendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(CalendarUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Calendar().setVisible(true);
+                new CalendarUI().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox Company;
+    private datechooser.beans.DateChooserPanel DateChooser;
     private javax.swing.JComboBox Patient;
-    private datechooser.beans.DateChooserPanel dateChooserPanel1;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
