@@ -41,17 +41,21 @@ public class Database {
         this.comp_pat.put(patient, company);
     }
     
-    public Company getCompany(Patient patient){
-        return comp_pat.get(patient);
-    }
-    
-    public List<Patient> getAllPatients(){
+     public List<Patient> getAllPatients(){
         Set<Patient> set = this.comp_pat.keySet();
         List<Patient> list = new ArrayList<>();
         for(Patient p: set)
             list.add(p);        
         return list;
     }
+     
+    public Company getCompany(Patient patient){
+        return comp_pat.get(patient);
+    }
+    
+    
+    
+
     
     public List<Document> getDocuments(Patient patient, List<Date> period){
         
