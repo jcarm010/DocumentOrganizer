@@ -12,6 +12,10 @@ public class Document implements Serializable {
         this.date = date;
         this.address = address;
     }
+    
+    public Date getDate(){
+        return this.getDate();
+    }
 
     @Override
     public int hashCode() {
